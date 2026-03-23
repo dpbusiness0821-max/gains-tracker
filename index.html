@@ -12,13 +12,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-    background: #0a0a0f;
-    color: #fff;
-    min-height: 100vh;
-    max-width: 430px;
-    margin: 0 auto;
-    overflow-x: hidden;
-    padding-bottom: 40px;
+    background: #0a0a0f; color: #fff;
+    min-height: 100vh; max-width: 430px;
+    margin: 0 auto; overflow-x: hidden; padding-bottom: 100px;
   }
   .glow {
     position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
@@ -26,118 +22,99 @@
     background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
     pointer-events: none; z-index: 0;
   }
-  .header {
-    padding: 56px 20px 0;
-    position: relative; z-index: 1;
-  }
-  .header-row {
-    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;
-  }
-  .header-label {
-    font-size: 13px; color: #6b7280; letter-spacing: 1px;
-    text-transform: uppercase; font-weight: 600; margin-bottom: 4px;
-  }
+  .header { padding: 56px 20px 0; position: relative; z-index: 1; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .header-label { font-size: 13px; color: #6b7280; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
   .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-  .month-total-box {
-    text-align: right; border-radius: 16px; padding: 10px 16px;
-    transition: all 0.3s;
-  }
-  .month-total-box.gain {
-    background: rgba(16,185,129,0.12);
-    border: 1px solid rgba(16,185,129,0.3);
-  }
-  .month-total-box.loss {
-    background: rgba(239,68,68,0.12);
-    border: 1px solid rgba(239,68,68,0.3);
-  }
-  .month-total-box.neutral {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .month-total-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
-  .month-total-value { font-size: 20px; font-weight: 700; }
+  .summary-boxes { display: flex; gap: 8px; }
+  .summary-box { text-align: right; border-radius: 14px; padding: 8px 12px; transition: all 0.3s; min-width: 76px; }
+  .summary-box.gain { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); }
+  .summary-box.loss { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); }
+  .summary-box.neutral { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+  .summary-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+  .summary-value { font-size: 16px; font-weight: 700; }
   .gain-color { color: #10b981; }
   .loss-color { color: #ef4444; }
   .neutral-color { color: #6b7280; }
+  .sync-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 12px 20px 0; padding: 8px 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; font-size: 12px; color: #6b7280;
+  }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; display: inline-block; }
+  .sync-dot.connected { background: #10b981; box-shadow: 0 0 6px #10b981; }
+  .sync-dot.disconnected { background: #6b7280; }
+  .sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
+  .sync-dot.error { background: #ef4444; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .sync-setup-btn {
+    background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+    color: #10b981; border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 12px; position: relative; z-index: 1;
+  }
+  .nav-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; width: 38px; height: 38px; border-radius: 12px;
+    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .nav-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .day-labels { display: grid; grid-template-columns: repeat(7, 1fr); padding: 0 12px; margin-bottom: 4px; }
+  .day-label { text-align: center; font-size: 11px; color: #4b5563; font-weight: 600; padding: 4px 0; letter-spacing: 0.5px; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; padding: 0 12px 24px; }
+  .day-cell {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px; cursor: pointer; padding: 8px 2px 6px; min-height: 62px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: all 0.15s ease;
+  }
+  .day-cell.has-gain { background: rgba(16,185,129,0.13); border-color: rgba(16,185,129,0.35); }
+  .day-cell.has-loss { background: rgba(239,68,68,0.13); border-color: rgba(239,68,68,0.35); }
+  .day-cell.is-today { border: 1.5px solid rgba(255,255,255,0.5) !important; }
+  .day-num { font-size: 14px; font-weight: 500; color: #9ca3af; line-height: 1; }
+  .day-num.today { font-weight: 700; color: #fff; }
+  .day-amount { font-size: 9px; font-weight: 700; line-height: 1; margin-top: 4px; letter-spacing: -0.2px; }
+  .legend { display: flex; justify-content: center; gap: 20px; padding-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; opacity: 0.8; }
+  .legend-label { font-size: 12px; color: #6b7280; }
 
-/* Sync status bar */
-.sync-bar {
-display: flex; align-items: center; justify-content: space-between;
-margin: 12px 20px 0; padding: 8px 14px;
-background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-border-radius: 12px; font-size: 12px; color: #6b7280;
-}
-.sync-dot {
-width: 7px; height: 7px; border-radius: 50%; margin-right: 6px;
-display: inline-block;
-}
-.sync-dot.connected { background: #10b981; box-shadow: 0 0 6px #10b981; }
-.sync-dot.disconnected { background: #6b7280; }
-.sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
-.sync-dot.error { background: #ef4444; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.sync-setup-btn {
-background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
-color: #10b981; border-radius: 8px; padding: 4px 10px;
-font-size: 11px; font-weight: 600; cursor: pointer;
-}
-
-.nav {
-display: flex; align-items: center; justify-content: space-between;
-padding: 20px 20px 12px; position: relative; z-index: 1;
-}
-.nav-btn {
+/* Tickers View */
+.tickers-view { padding: 16px 20px; }
+.year-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.year-btn {
 background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-color: #fff; width: 38px; height: 38px; border-radius: 12px;
-font-size: 20px; cursor: pointer;
-display: flex; align-items: center; justify-content: center;
+color: #fff; width: 34px; height: 34px; border-radius: 10px;
+font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
-.nav-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
-.day-labels {
-display: grid; grid-template-columns: repeat(7, 1fr);
-padding: 0 12px; margin-bottom: 4px;
+.year-label { font-size: 17px; font-weight: 600; }
+.ytd-summary {
+background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+border-radius: 16px; padding: 16px; margin-bottom: 20px;
+display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
 }
-.day-label {
-text-align: center; font-size: 11px; color: #4b5563;
-font-weight: 600; padding: 4px 0; letter-spacing: 0.5px; text-transform: uppercase;
+.ytd-stat { text-align: center; }
+.ytd-stat-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+.ytd-stat-value { font-size: 16px; font-weight: 700; }
+.ticker-card {
+background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+border-radius: 16px; padding: 16px; margin-bottom: 10px;
 }
-.grid {
-display: grid; grid-template-columns: repeat(7, 1fr);
-gap: 3px; padding: 0 12px 24px;
-}
-.day-cell {
-background: rgba(255,255,255,0.03);
-border: 1px solid rgba(255,255,255,0.06);
-border-radius: 12px; cursor: pointer;
-padding: 8px 2px 6px; min-height: 62px;
-display: flex; flex-direction: column;
-align-items: center; justify-content: space-between;
-transition: all 0.15s ease; position: relative;
-}
-.day-cell.has-gain {
-background: rgba(16,185,129,0.13);
-border-color: rgba(16,185,129,0.35);
-}
-.day-cell.has-loss {
-background: rgba(239,68,68,0.13);
-border-color: rgba(239,68,68,0.35);
-}
-.day-cell.is-today {
-border: 1.5px solid rgba(255,255,255,0.5) !important;
-}
-.day-num {
-font-size: 14px; font-weight: 500; color: #9ca3af; line-height: 1;
-}
-.day-num.today { font-weight: 700; color: #fff; }
-.day-amount {
-font-size: 9px; font-weight: 700; line-height: 1; margin-top: 4px; letter-spacing: -0.2px;
-}
-.legend {
-display: flex; justify-content: center; gap: 20px; padding-bottom: 32px;
-}
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-dot { width: 10px; height: 10px; border-radius: 3px; opacity: 0.8; }
-.legend-label { font-size: 12px; color: #6b7280; }
+.ticker-card.top-gain { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.06); }
+.ticker-card.top-loss { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.06); }
+.ticker-card-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ticker-name { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+.ticker-total { font-size: 20px; font-weight: 700; }
+.ticker-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+.ticker-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.ticker-meta { display: flex; justify-content: space-between; margin-top: 10px; }
+.ticker-meta-item { font-size: 11px; color: #6b7280; }
+.ticker-meta-value { font-size: 12px; font-weight: 600; }
+.no-tickers { text-align: center; color: #4b5563; font-size: 14px; padding: 48px 0; line-height: 2; }
 
 /* Modal */
 .overlay {
@@ -150,25 +127,18 @@ background: #13131a; border: 1px solid rgba(255,255,255,0.1);
 border-radius: 28px 28px 0 0; width: 100%; max-width: 430px;
 padding: 20px 20px 48px; max-height: 80vh; overflow-y: auto;
 }
-.handle {
-width: 40px; height: 4px; border-radius: 2px;
-background: rgba(255,255,255,0.15); margin: 0 auto 20px;
-}
-.sheet-header {
-display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;
-}
+.handle { width: 40px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); margin: 0 auto 20px; }
+.sheet-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
 .sheet-date { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
 .sheet-total { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
 .add-btn {
 background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
-color: #10b981; border-radius: 12px; padding: 8px 14px;
-font-size: 13px; font-weight: 600; cursor: pointer;
+color: #10b981; border-radius: 12px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .stock-row {
 display: flex; align-items: center; justify-content: space-between;
 background: rgba(255,255,255,0.04); border-radius: 14px;
-padding: 14px 16px; margin-bottom: 8px;
-border: 1px solid rgba(255,255,255,0.07);
+padding: 14px 16px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.07);
 }
 .stock-ticker { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
 .stock-sub { font-size: 11px; color: #6b7280; margin-top: 1px; }
@@ -176,42 +146,35 @@ border: 1px solid rgba(255,255,255,0.07);
 .remove-btn {
 background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
 color: #ef4444; border-radius: 8px; width: 28px; height: 28px;
-font-size: 16px; cursor: pointer;
-display: flex; align-items: center; justify-content: center; margin-left: 10px;
+font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 10px;
 }
 .empty-state { text-align: center; color: #4b5563; font-size: 14px; padding: 24px 0; }
 .entry-form {
 background: rgba(255,255,255,0.04); border: 1px solid rgba(16,185,129,0.25);
 border-radius: 16px; padding: 16px; margin-top: 4px;
 }
-.entry-form-title {
-font-size: 13px; color: #6b7280; margin-bottom: 12px;
-font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
-}
+.entry-form-title { font-size: 13px; color: #6b7280; margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
 .entry-inputs { display: flex; gap: 8px; margin-bottom: 8px; }
 .entry-input {
-flex: 1; background: rgba(255,255,255,0.07);
-border: 1px solid rgba(255,255,255,0.12);
-color: #fff; border-radius: 10px; padding: 10px 12px;
-font-size: 14px; outline: none;
--webkit-appearance: none;
+flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+color: #fff; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; -webkit-appearance: none;
 }
 .entry-input::placeholder { color: #4b5563; }
 .entry-hint { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
 .entry-btns { display: flex; gap: 8px; }
 .cancel-btn {
-flex: 1; background: rgba(255,255,255,0.05);
-border: 1px solid rgba(255,255,255,0.1);
-color: #9ca3af; border-radius: 10px; padding: 10px 0;
-font-size: 14px; cursor: pointer; font-weight: 600;
+flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+color: #9ca3af; border-radius: 10px; padding: 10px 0; font-size: 14px; cursor: pointer; font-weight: 600;
 }
 .save-btn {
 flex: 1; background: linear-gradient(135deg, #10b981, #059669);
-border: none; color: #fff; border-radius: 10px; padding: 10px 0;
-font-size: 14px; cursor: pointer; font-weight: 700;
+border: none; color: #fff; border-radius: 10px; padding: 10px 0; font-size: 14px; cursor: pointer; font-weight: 700;
 }
+.syncing-indicator { font-size: 11px; color: #f59e0b; }
+.sync-success { font-size: 11px; color: #10b981; }
+.sync-error { font-size: 11px; color: #ef4444; }
 
-/* Setup Modal */
+/* Setup */
 .setup-sheet {
 background: #13131a; border: 1px solid rgba(255,255,255,0.1);
 border-radius: 28px 28px 0 0; width: 100%; max-width: 430px;
@@ -219,15 +182,12 @@ padding: 20px 20px 48px; max-height: 90vh; overflow-y: auto;
 }
 .setup-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
 .setup-sub { font-size: 14px; color: #6b7280; margin-bottom: 24px; line-height: 1.5; }
-.step {
-display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start;
-}
+.step { display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start; }
 .step-num {
 width: 28px; height: 28px; border-radius: 50%;
 background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4);
 color: #10b981; font-size: 13px; font-weight: 700;
-display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-margin-top: 2px;
+display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
 }
 .step-content { flex: 1; }
 .step-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -236,43 +196,43 @@ margin-top: 2px;
 background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
 border-radius: 10px; padding: 12px; margin-top: 8px;
 font-family: ‘Courier New’, monospace; font-size: 11px;
-color: #10b981; white-space: pre-wrap; word-break: break-all;
-line-height: 1.6;
+color: #10b981; white-space: pre-wrap; word-break: break-all; line-height: 1.6;
 }
 .copy-btn {
 background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-color: #9ca3af; border-radius: 8px; padding: 4px 10px;
-font-size: 11px; cursor: pointer; margin-top: 6px; display: inline-block;
+color: #9ca3af; border-radius: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; margin-top: 6px; display: inline-block;
 }
 .url-input {
-width: 100%; background: rgba(255,255,255,0.07);
-border: 1px solid rgba(16,185,129,0.3);
-color: #fff; border-radius: 10px; padding: 12px;
-font-size: 13px; outline: none; margin-top: 8px;
--webkit-appearance: none;
+width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(16,185,129,0.3);
+color: #fff; border-radius: 10px; padding: 12px; font-size: 13px; outline: none; margin-top: 8px; -webkit-appearance: none;
 }
 .url-input::placeholder { color: #4b5563; }
 .save-url-btn {
 width: 100%; background: linear-gradient(135deg, #10b981, #059669);
-border: none; color: #fff; border-radius: 12px; padding: 14px;
-font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px;
+border: none; color: #fff; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px;
 }
-.divider {
-height: 1px; background: rgba(255,255,255,0.07); margin: 20px 0;
-}
+.divider { height: 1px; background: rgba(255,255,255,0.07); margin: 20px 0; }
 
-.syncing-indicator {
-font-size: 11px; color: #f59e0b; display: flex; align-items: center; gap: 4px;
+/* Bottom nav */
+.bottom-nav {
+position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+width: 100%; max-width: 430px;
+background: rgba(10,10,15,0.96); backdrop-filter: blur(20px);
+border-top: 1px solid rgba(255,255,255,0.08);
+display: flex; padding: 10px 0 28px; z-index: 40;
 }
-.sync-success { font-size: 11px; color: #10b981; }
-.sync-error { font-size: 11px; color: #ef4444; }
+.bottom-tab {
+flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+background: none; border: none; cursor: pointer; padding: 4px 0;
+}
+.bottom-tab-icon { font-size: 22px; line-height: 1; }
+.bottom-tab-label { font-size: 10px; font-weight: 600; color: #4b5563; letter-spacing: 0.3px; }
+.bottom-tab.active .bottom-tab-label { color: #10b981; }
 </style>
 
 </head>
 <body>
 <div class="glow"></div>
-
-<!-- Header -->
 
 <div class="header">
   <div class="header-row">
@@ -280,14 +240,18 @@ font-size: 11px; color: #f59e0b; display: flex; align-items: center; gap: 4px;
       <div class="header-label">Portfolio</div>
       <div class="header-title">Gains Tracker</div>
     </div>
-    <div class="month-total-box neutral" id="monthTotalBox">
-      <div class="month-total-label">Month</div>
-      <div class="month-total-value neutral-color" id="monthTotal">$0.00</div>
+    <div class="summary-boxes">
+      <div class="summary-box neutral" id="monthTotalBox">
+        <div class="summary-label">Month</div>
+        <div class="summary-value neutral-color" id="monthTotal">$0</div>
+      </div>
+      <div class="summary-box neutral" id="ytdTotalBox">
+        <div class="summary-label">YTD</div>
+        <div class="summary-value neutral-color" id="ytdTotal">$0</div>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- Sync Status Bar -->
 
 <div class="sync-bar">
   <div style="display:flex;align-items:center;">
@@ -297,35 +261,53 @@ font-size: 11px; color: #f59e0b; display: flex; align-items: center; gap: 4px;
   <button class="sync-setup-btn" onclick="openSetup()">Setup</button>
 </div>
 
-<!-- Month Nav -->
+<!-- Calendar View -->
 
-<div class="nav">
-  <button class="nav-btn" onclick="prevMonth()">‹</button>
-  <div class="nav-title" id="navTitle"></div>
-  <button class="nav-btn" onclick="nextMonth()">›</button>
+<div id="calendarView" class="view active">
+  <div class="nav">
+    <button class="nav-btn" onclick="prevMonth()">&#8249;</button>
+    <div class="nav-title" id="navTitle"></div>
+    <button class="nav-btn" onclick="nextMonth()">&#8250;</button>
+  </div>
+  <div class="day-labels">
+    <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+    <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+  </div>
+  <div class="grid" id="calGrid"></div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span class="legend-label">Gain</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-label">Loss</span></div>
+  </div>
 </div>
 
-<!-- Day Labels -->
+<!-- Tickers View -->
 
-<div class="day-labels">
-  <div class="day-label">Sun</div><div class="day-label">Mon</div>
-  <div class="day-label">Tue</div><div class="day-label">Wed</div>
-  <div class="day-label">Thu</div><div class="day-label">Fri</div>
-  <div class="day-label">Sat</div>
+<div id="tickersView" class="view">
+  <div class="tickers-view">
+    <div class="year-selector">
+      <button class="year-btn" onclick="prevTickerYear()">&#8249;</button>
+      <div class="year-label" id="tickerYearLabel"></div>
+      <button class="year-btn" onclick="nextTickerYear()">&#8250;</button>
+    </div>
+    <div class="ytd-summary" id="ytdSummary"></div>
+    <div id="tickerList"></div>
+  </div>
 </div>
 
-<!-- Calendar Grid -->
+<!-- Bottom Nav -->
 
-<div class="grid" id="calGrid"></div>
-
-<!-- Legend -->
-
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span class="legend-label">Gain</span></div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-label">Loss</span></div>
+<div class="bottom-nav">
+  <button class="bottom-tab active" id="tabCal" onclick="switchTab('calendar')">
+    <span class="bottom-tab-icon">&#128197;</span>
+    <span class="bottom-tab-label">Calendar</span>
+  </button>
+  <button class="bottom-tab" id="tabTickers" onclick="switchTab('tickers')">
+    <span class="bottom-tab-icon">&#128202;</span>
+    <span class="bottom-tab-label">By Ticker</span>
+  </button>
 </div>
 
-<!-- Day Detail Modal -->
+<!-- Day Modal -->
 
 <div class="overlay" id="dayModal" style="display:none;" onclick="closeDayModal(event)">
   <div class="sheet" onclick="event.stopPropagation()">
@@ -363,186 +345,208 @@ font-size: 11px; color: #f59e0b; display: flex; align-items: center; gap: 4px;
     <div class="handle"></div>
     <div class="setup-title">Connect Google Sheets</div>
     <div class="setup-sub">Follow these steps once. Your entries will sync to your Google Drive permanently.</div>
-
-```
-<div class="step">
-  <div class="step-num">1</div>
-  <div class="step-content">
-    <div class="step-title">Create a Google Sheet</div>
-    <div class="step-desc">Go to <strong style="color:#fff">sheets.google.com</strong>, create a new spreadsheet. Name it anything — e.g. "Investment Gains".</div>
-  </div>
-</div>
-
-<div class="step">
-  <div class="step-num">2</div>
-  <div class="step-content">
-    <div class="step-title">Open Apps Script</div>
-    <div class="step-desc">In your sheet, click <strong style="color:#fff">Extensions → Apps Script</strong>. Delete any existing code and paste this:</div>
-    <div class="code-block" id="scriptCode">function doPost(e) {
-```
-
-try {
-var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-var data = JSON.parse(e.postData.contents);
-if (data.action === “add”) {
-sheet.appendRow([data.date, data.ticker, data.gain, new Date().toLocaleString()]);
-} else if (data.action === “delete”) {
-var rows = sheet.getDataRange().getValues();
-for (var i = rows.length - 1; i >= 0; i–) {
-if (rows[i][0] === data.date && rows[i][1] === data.ticker && Number(rows[i][2]) === Number(data.gain)) {
-sheet.deleteRow(i + 1); break;
-}
-}
-}
-return ContentService.createTextOutput(JSON.stringify({status:“ok”})).setMimeType(ContentService.MimeType.JSON);
-} catch(err) {
-return ContentService.createTextOutput(JSON.stringify({status:“error”,message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
-}
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Create a Google Sheet</div>
+        <div class="step-desc">Go to <strong style="color:#fff">sheets.google.com</strong>, create a new spreadsheet named "Investment Gains".</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Open Apps Script</div>
+        <div class="step-desc">In your sheet, click <strong style="color:#fff">Extensions &rarr; Apps Script</strong>. Delete existing code and paste this:</div>
+        <div class="code-block" id="scriptCode">function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    if (data.action === "add") {
+      sheet.appendRow([data.date, data.ticker, data.gain, new Date().toLocaleString()]);
+    } else if (data.action === "delete") {
+      var rows = sheet.getDataRange().getValues();
+      for (var i = rows.length - 1; i >= 0; i--) {
+        if (rows[i][0] === data.date && rows[i][1] === data.ticker && Number(rows[i][2]) === Number(data.gain)) {
+          sheet.deleteRow(i + 1); break;
+        }
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({status:"ok"})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status:"error",message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
 }</div>
-<button class="copy-btn" onclick="copyScript()">📋 Copy code</button>
-</div>
-</div>
-
-```
-<div class="step">
-  <div class="step-num">3</div>
-  <div class="step-content">
-    <div class="step-title">Deploy as Web App</div>
-    <div class="step-desc">Click <strong style="color:#fff">Deploy → New deployment</strong>. Set type to <strong style="color:#fff">Web app</strong>. Set <strong style="color:#fff">"Who has access"</strong> to <strong style="color:#fff">Anyone</strong>. Click Deploy and copy the URL.</div>
-  </div>
-</div>
-
-<div class="step">
-  <div class="step-num">4</div>
-  <div class="step-content">
-    <div class="step-title">Paste your Web App URL below</div>
-    <div class="step-desc">It looks like: <span style="color:#10b981">https://script.google.com/macros/s/...</span></div>
-    <input class="url-input" id="sheetsUrlInput" placeholder="Paste your Apps Script URL here..." />
-  </div>
-</div>
-
-<button class="save-url-btn" onclick="saveSheetUrl()">✓ Connect & Save</button>
-
-<div class="divider"></div>
-<div style="text-align:center;">
-  <button onclick="closeSetup()" style="background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;">Cancel</button>
-</div>
-```
-
+        <button class="copy-btn" onclick="copyScript()">Copy code</button>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Deploy as Web App</div>
+        <div class="step-desc">Click <strong style="color:#fff">Deploy &rarr; New deployment</strong>. Set type to <strong style="color:#fff">Web app</strong>. Set access to <strong style="color:#fff">Anyone</strong>. Deploy and copy the URL.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Paste your Web App URL below</div>
+        <div class="step-desc">It looks like: <span style="color:#10b981">https://script.google.com/macros/s/...</span></div>
+        <input class="url-input" id="sheetsUrlInput" placeholder="Paste your Apps Script URL here..." />
+      </div>
+    </div>
+    <button class="save-url-btn" onclick="saveSheetUrl()">Connect &amp; Save</button>
+    <div class="divider"></div>
+    <div style="text-align:center;">
+      <button onclick="closeSetup()" style="background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;">Cancel</button>
+    </div>
   </div>
 </div>
 
 <script>
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
 let today = new Date();
 let currentYear = today.getFullYear();
 let currentMonth = today.getMonth();
+let tickerYear = today.getFullYear();
 let selectedDay = null;
 let data = {};
 let sheetsUrl = "";
 
-// Load from localStorage
 function loadData() {
-  try {
-    const raw = localStorage.getItem("investment-gains");
-    data = raw ? JSON.parse(raw) : {};
-  } catch { data = {}; }
-  try {
-    sheetsUrl = localStorage.getItem("sheets-url") || "";
-  } catch { sheetsUrl = ""; }
+  try { const r = localStorage.getItem("investment-gains"); data = r ? JSON.parse(r) : {}; } catch { data = {}; }
+  try { sheetsUrl = localStorage.getItem("sheets-url") || ""; } catch { sheetsUrl = ""; }
   updateSyncStatus();
 }
-
-function saveData() {
-  try { localStorage.setItem("investment-gains", JSON.stringify(data)); } catch {}
-}
-
-function dateKey(y, m, d) {
-  return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-}
-
-function getDayStocks(day) {
-  return (data[dateKey(currentYear, currentMonth, day)] || { stocks: [] }).stocks;
-}
-
-function getDayTotal(day) {
-  return getDayStocks(day).reduce((s, x) => s + (parseFloat(x.gain) || 0), 0);
-}
+function saveData() { try { localStorage.setItem("investment-gains", JSON.stringify(data)); } catch {} }
+function dateKey(y, m, d) { return y + "-" + String(m+1).padStart(2,"0") + "-" + String(d).padStart(2,"0"); }
+function getDayStocks(day) { return (data[dateKey(currentYear, currentMonth, day)] || { stocks: [] }).stocks; }
+function getDayTotal(day) { return getDayStocks(day).reduce(function(s,x){ return s + (parseFloat(x.gain)||0); }, 0); }
 
 function fmtCurrency(val) {
   if (val === 0) return "$0.00";
-  const abs = Math.abs(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${val >= 0 ? "+" : "-"}$${abs}`;
+  var abs = Math.abs(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (val >= 0 ? "+" : "-") + "$" + abs;
 }
-
 function fmtShort(val) {
-  const abs = Math.abs(val);
-  const str = abs >= 1000 ? `$${(abs/1000).toFixed(1)}k` : `$${abs.toFixed(0)}`;
+  var abs = Math.abs(val);
+  var str = abs >= 1000 ? "$" + (abs/1000).toFixed(1) + "k" : "$" + abs.toFixed(0);
   return (val >= 0 ? "+" : "-") + str;
 }
 
+function getYTD(year) {
+  var total = 0;
+  Object.keys(data).forEach(function(key) {
+    if (key.indexOf(year + "-") === 0) {
+      ((data[key] || {}).stocks || []).forEach(function(s){ total += parseFloat(s.gain) || 0; });
+    }
+  });
+  return total;
+}
+
+function getTickerBreakdown(year) {
+  var tickers = {};
+  Object.keys(data).forEach(function(key) {
+    if (key.indexOf(year + "-") === 0) {
+      ((data[key] || {}).stocks || []).forEach(function(s) {
+        if (!tickers[s.ticker]) tickers[s.ticker] = { total: 0, count: 0, gains: 0, losses: 0 };
+        var g = parseFloat(s.gain) || 0;
+        tickers[s.ticker].total += g;
+        tickers[s.ticker].count++;
+        if (g >= 0) tickers[s.ticker].gains += g;
+        else tickers[s.ticker].losses += g;
+      });
+    }
+  });
+  return Object.keys(tickers).map(function(t){ return Object.assign({ ticker: t }, tickers[t]); })
+    .sort(function(a,b){ return b.total - a.total; });
+}
+
 function updateSyncStatus() {
-  const dot = document.getElementById("syncDot");
-  const status = document.getElementById("syncStatus");
-  if (sheetsUrl) {
-    dot.className = "sync-dot connected";
-    status.textContent = "Connected to Google Sheets";
-  } else {
-    dot.className = "sync-dot disconnected";
-    status.textContent = "Not connected to Google Sheets";
-  }
+  var dot = document.getElementById("syncDot");
+  var status = document.getElementById("syncStatus");
+  if (sheetsUrl) { dot.className = "sync-dot connected"; status.textContent = "Connected to Google Sheets"; }
+  else { dot.className = "sync-dot disconnected"; status.textContent = "Not connected to Google Sheets"; }
+}
+
+function switchTab(tab) {
+  document.getElementById("calendarView").classList.toggle("active", tab === "calendar");
+  document.getElementById("tickersView").classList.toggle("active", tab === "tickers");
+  document.getElementById("tabCal").classList.toggle("active", tab === "calendar");
+  document.getElementById("tabTickers").classList.toggle("active", tab === "tickers");
+  if (tab === "tickers") renderTickers();
 }
 
 function renderCalendar() {
-  document.getElementById("navTitle").textContent = `${MONTHS[currentMonth]} ${currentYear}`;
-
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const grid = document.getElementById("calGrid");
+  document.getElementById("navTitle").textContent = MONTHS[currentMonth] + " " + currentYear;
+  var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  var grid = document.getElementById("calGrid");
   grid.innerHTML = "";
-
-  // Blanks
-  for (let i = 0; i < firstDay; i++) {
-    grid.appendChild(document.createElement("div"));
-  }
-
-  let monthTotal = 0;
-  for (let day = 1; day <= daysInMonth; day++) {
-    const total = getDayTotal(day);
+  for (var i = 0; i < firstDay; i++) grid.appendChild(document.createElement("div"));
+  var monthTotal = 0;
+  for (var day = 1; day <= daysInMonth; day++) {
+    var total = getDayTotal(day);
     monthTotal += total;
-    const isT = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
-    const cell = document.createElement("button");
+    var isT = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+    var cell = document.createElement("button");
     cell.className = "day-cell" + (total > 0 ? " has-gain" : total < 0 ? " has-loss" : "") + (isT ? " is-today" : "");
-    cell.innerHTML = `
-      <span class="day-num${isT ? " today" : ""}">${day}</span>
-      ${total !== 0 ? `<span class="day-amount ${total > 0 ? "gain-color" : "loss-color"}">${fmtShort(total)}</span>` : "<span style='height:10px'></span>"}
-    `;
-    cell.onclick = () => openDay(day);
+    cell.innerHTML = "<span class=\"day-num" + (isT ? " today" : "") + "\">" + day + "</span>" +
+      (total !== 0 ? "<span class=\"day-amount " + (total > 0 ? "gain-color" : "loss-color") + "\">" + fmtShort(total) + "</span>" : "<span style='height:10px'></span>");
+    (function(d){ cell.onclick = function(){ openDay(d); }; })(day);
     grid.appendChild(cell);
   }
-
-  // Month total
-  const box = document.getElementById("monthTotalBox");
-  const val = document.getElementById("monthTotal");
-  box.className = "month-total-box " + (monthTotal > 0 ? "gain" : monthTotal < 0 ? "loss" : "neutral");
-  val.className = "month-total-value " + (monthTotal > 0 ? "gain-color" : monthTotal < 0 ? "loss-color" : "neutral-color");
-  val.textContent = fmtCurrency(monthTotal);
+  var box = document.getElementById("monthTotalBox");
+  var val = document.getElementById("monthTotal");
+  box.className = "summary-box " + (monthTotal > 0 ? "gain" : monthTotal < 0 ? "loss" : "neutral");
+  val.className = "summary-value " + (monthTotal > 0 ? "gain-color" : monthTotal < 0 ? "loss-color" : "neutral-color");
+  val.textContent = fmtShort(monthTotal);
+  var ytd = getYTD(currentYear);
+  var ytdBox = document.getElementById("ytdTotalBox");
+  var ytdVal = document.getElementById("ytdTotal");
+  ytdBox.className = "summary-box " + (ytd > 0 ? "gain" : ytd < 0 ? "loss" : "neutral");
+  ytdVal.className = "summary-value " + (ytd > 0 ? "gain-color" : ytd < 0 ? "loss-color" : "neutral-color");
+  ytdVal.textContent = fmtShort(ytd);
 }
 
-function prevMonth() {
-  if (currentMonth === 0) { currentYear--; currentMonth = 11; }
-  else currentMonth--;
-  renderCalendar();
+function renderTickers() {
+  document.getElementById("tickerYearLabel").textContent = tickerYear + " — By Ticker";
+  var breakdown = getTickerBreakdown(tickerYear);
+  var ytd = getYTD(tickerYear);
+  var totalGains = breakdown.reduce(function(s,t){ return s + (t.gains||0); }, 0);
+  var totalLosses = breakdown.reduce(function(s,t){ return s + Math.abs(t.losses||0); }, 0);
+  document.getElementById("ytdSummary").innerHTML =
+    "<div class='ytd-stat'><div class='ytd-stat-label'>YTD Total</div><div class='ytd-stat-value " + (ytd>=0?"gain-color":"loss-color") + "'>" + fmtShort(ytd) + "</div></div>" +
+    "<div class='ytd-stat'><div class='ytd-stat-label'>Total Gains</div><div class='ytd-stat-value gain-color'>+$" + totalGains.toLocaleString("en-US",{maximumFractionDigits:0}) + "</div></div>" +
+    "<div class='ytd-stat'><div class='ytd-stat-label'>Total Losses</div><div class='ytd-stat-value loss-color'>-$" + totalLosses.toLocaleString("en-US",{maximumFractionDigits:0}) + "</div></div>";
+  if (breakdown.length === 0) {
+    document.getElementById("tickerList").innerHTML = "<div class='no-tickers'>No entries for " + tickerYear + " yet.<br>Add trades on the Calendar tab.</div>";
+    return;
+  }
+  var maxAbs = Math.max.apply(null, breakdown.map(function(t){ return Math.abs(t.total); }));
+  document.getElementById("tickerList").innerHTML = breakdown.map(function(t, i) {
+    var isTopGain = i === 0 && t.total > 0;
+    var isTopLoss = t.total < 0 && i === breakdown.length - 1 && breakdown.length > 1;
+    var barPct = maxAbs > 0 ? (Math.abs(t.total) / maxAbs) * 100 : 0;
+    var barColor = t.total >= 0 ? "#10b981" : "#ef4444";
+    return "<div class='ticker-card" + (isTopGain ? " top-gain" : isTopLoss ? " top-loss" : "") + "'>" +
+      "<div class='ticker-card-row'>" +
+        "<div><div class='ticker-name'>" + t.ticker + (isTopGain ? " 🏆" : "") + "</div>" +
+        "<div style='font-size:11px;color:#6b7280;margin-top:2px;'>" + t.count + " trade" + (t.count!==1?"s":"") + "</div></div>" +
+        "<div class='ticker-total " + (t.total>=0?"gain-color":"loss-color") + "'>" + fmtCurrency(t.total) + "</div>" +
+      "</div>" +
+      "<div class='ticker-bar-bg'><div class='ticker-bar-fill' style='width:" + barPct + "%;background:" + barColor + ";'></div></div>" +
+      "<div class='ticker-meta'>" +
+        "<div><span class='ticker-meta-item'>Gains </span><span class='ticker-meta-value gain-color'>+$" + Math.abs(t.gains).toLocaleString("en-US",{maximumFractionDigits:0}) + "</span></div>" +
+        "<div><span class='ticker-meta-item'>Losses </span><span class='ticker-meta-value loss-color'>-$" + Math.abs(t.losses).toLocaleString("en-US",{maximumFractionDigits:0}) + "</span></div>" +
+      "</div></div>";
+  }).join("");
 }
 
-function nextMonth() {
-  if (currentMonth === 11) { currentYear++; currentMonth = 0; }
-  else currentMonth++;
-  renderCalendar();
-}
+function prevTickerYear() { tickerYear--; renderTickers(); }
+function nextTickerYear() { tickerYear++; renderTickers(); }
+function prevMonth() { if (currentMonth===0){currentYear--;currentMonth=11;}else currentMonth--; renderCalendar(); }
+function nextMonth() { if (currentMonth===11){currentYear++;currentMonth=0;}else currentMonth++; renderCalendar(); }
 
-// Day modal
 function openDay(day) {
   selectedDay = day;
   document.getElementById("dayModal").style.display = "flex";
@@ -551,169 +555,83 @@ function openDay(day) {
   document.getElementById("gainInput").value = "";
   renderDayModal();
 }
-
 function closeDayModal(e) {
-  if (e.target === document.getElementById("dayModal")) {
-    document.getElementById("dayModal").style.display = "none";
-    selectedDay = null;
-  }
+  if (e.target === document.getElementById("dayModal")) { document.getElementById("dayModal").style.display = "none"; selectedDay = null; }
 }
-
 function renderDayModal() {
   if (!selectedDay) return;
-  const key = dateKey(currentYear, currentMonth, selectedDay);
-  const stocks = (data[key] || { stocks: [] }).stocks;
-  const total = stocks.reduce((s, x) => s + (parseFloat(x.gain) || 0), 0);
-
-  document.getElementById("modalDate").textContent = `${MONTHS[currentMonth]} ${selectedDay}, ${currentYear}`;
-  const totalEl = document.getElementById("modalTotal");
+  var key = dateKey(currentYear, currentMonth, selectedDay);
+  var stocks = (data[key] || { stocks: [] }).stocks;
+  var total = stocks.reduce(function(s,x){ return s+(parseFloat(x.gain)||0); }, 0);
+  document.getElementById("modalDate").textContent = MONTHS[currentMonth] + " " + selectedDay + ", " + currentYear;
+  var totalEl = document.getElementById("modalTotal");
   totalEl.textContent = fmtCurrency(total);
-  totalEl.className = "sheet-total " + (total > 0 ? "gain-color" : total < 0 ? "loss-color" : "neutral-color");
-
-  const list = document.getElementById("stockList");
-  if (stocks.length === 0) {
-    list.innerHTML = `<div class="empty-state">No entries yet. Tap + Add to log a gain or loss.</div>`;
-    return;
-  }
-  list.innerHTML = stocks.map((s, i) => `
-    <div class="stock-row">
-      <div>
-        <div class="stock-ticker">${s.ticker}</div>
-        <div class="stock-sub">Stock</div>
-      </div>
-      <div style="display:flex;align-items:center;">
-        <span class="stock-amount ${s.gain >= 0 ? "gain-color" : "loss-color"}">${fmtCurrency(parseFloat(s.gain))}</span>
-        <button class="remove-btn" onclick="removeStock(${i})">×</button>
-      </div>
-    </div>
-  `).join("");
+  totalEl.className = "sheet-total " + (total>0?"gain-color":total<0?"loss-color":"neutral-color");
+  var list = document.getElementById("stockList");
+  if (stocks.length === 0) { list.innerHTML = "<div class='empty-state'>No entries yet. Tap + Add to log a gain or loss.</div>"; return; }
+  list.innerHTML = stocks.map(function(s,i) {
+    return "<div class='stock-row'><div><div class='stock-ticker'>" + s.ticker + "</div><div class='stock-sub'>Stock</div></div>" +
+      "<div style='display:flex;align-items:center;'><span class='stock-amount " + (s.gain>=0?"gain-color":"loss-color") + "'>" + fmtCurrency(parseFloat(s.gain)) + "</span>" +
+      "<button class='remove-btn' onclick='removeStock(" + i + ")'>x</button></div></div>";
+  }).join("");
 }
-
-function showEntryForm() {
-  document.getElementById("entryForm").style.display = "block";
-  setTimeout(() => document.getElementById("tickerInput").focus(), 100);
-}
-
-function hideEntryForm() {
-  document.getElementById("entryForm").style.display = "none";
-}
+function showEntryForm() { document.getElementById("entryForm").style.display = "block"; setTimeout(function(){ document.getElementById("tickerInput").focus(); }, 100); }
+function hideEntryForm() { document.getElementById("entryForm").style.display = "none"; }
 
 async function addStock() {
-  const ticker = document.getElementById("tickerInput").value.trim().toUpperCase();
-  const gainRaw = document.getElementById("gainInput").value;
+  var ticker = document.getElementById("tickerInput").value.trim().toUpperCase();
+  var gainRaw = document.getElementById("gainInput").value;
   if (!ticker || gainRaw === "") return;
-  const gain = parseFloat(gainRaw);
-  const key = dateKey(currentYear, currentMonth, selectedDay);
+  var gain = parseFloat(gainRaw);
+  var key = dateKey(currentYear, currentMonth, selectedDay);
   if (!data[key]) data[key] = { stocks: [] };
-  data[key].stocks.push({ ticker, gain });
-  saveData();
-  hideEntryForm();
+  data[key].stocks.push({ ticker: ticker, gain: gain });
+  saveData(); hideEntryForm();
   document.getElementById("tickerInput").value = "";
   document.getElementById("gainInput").value = "";
-  renderDayModal();
-  renderCalendar();
-
-  // Sync to Google Sheets
-  if (sheetsUrl) {
-    await syncToSheets("add", {
-      date: dateKey(currentYear, currentMonth, selectedDay),
-      ticker, gain
-    });
-  }
+  renderDayModal(); renderCalendar();
+  if (sheetsUrl) await syncToSheets("add", { date: key, ticker: ticker, gain: gain });
 }
-
 async function removeStock(idx) {
-  const key = dateKey(currentYear, currentMonth, selectedDay);
+  var key = dateKey(currentYear, currentMonth, selectedDay);
   if (!data[key]) return;
-  const removed = data[key].stocks[idx];
+  var removed = data[key].stocks[idx];
   data[key].stocks.splice(idx, 1);
-  saveData();
-  renderDayModal();
-  renderCalendar();
-
-  // Sync delete to Google Sheets
-  if (sheetsUrl && removed) {
-    await syncToSheets("delete", {
-      date: key,
-      ticker: removed.ticker,
-      gain: removed.gain
-    });
-  }
+  saveData(); renderDayModal(); renderCalendar();
+  if (sheetsUrl && removed) await syncToSheets("delete", { date: key, ticker: removed.ticker, gain: removed.gain });
 }
-
 async function syncToSheets(action, payload) {
-  const dot = document.getElementById("syncDot");
-  const msgEl = document.getElementById("modalSyncMsg");
+  var dot = document.getElementById("syncDot");
+  var msgEl = document.getElementById("modalSyncMsg");
   dot.className = "sync-dot syncing";
-  if (msgEl) msgEl.innerHTML = `<span class="syncing-indicator">⏳ Syncing...</span>`;
-
+  if (msgEl) msgEl.innerHTML = "<span class='syncing-indicator'>Syncing...</span>";
   try {
-    const res = await fetch(sheetsUrl, {
-      method: "POST",
-      body: JSON.stringify({ action, ...payload }),
-      headers: { "Content-Type": "text/plain" } // Apps Script needs text/plain for no-cors
-    });
+    await fetch(sheetsUrl, { method: "POST", body: JSON.stringify(Object.assign({ action: action }, payload)), headers: { "Content-Type": "text/plain" } });
     dot.className = "sync-dot connected";
-    if (msgEl) {
-      msgEl.innerHTML = `<span class="sync-success">✓ Saved to Google Sheets</span>`;
-      setTimeout(() => { if (msgEl) msgEl.innerHTML = ""; }, 3000);
-    }
-  } catch (err) {
+    if (msgEl) { msgEl.innerHTML = "<span class='sync-success'>Saved to Google Sheets</span>"; setTimeout(function(){ if(msgEl) msgEl.innerHTML=""; }, 3000); }
+  } catch(err) {
     dot.className = "sync-dot error";
-    if (msgEl) {
-      msgEl.innerHTML = `<span class="sync-error">⚠ Sync failed — saved locally</span>`;
-      setTimeout(() => { if (msgEl) msgEl.innerHTML = ""; }, 4000);
-    }
-    setTimeout(() => updateSyncStatus(), 4000);
+    if (msgEl) { msgEl.innerHTML = "<span class='sync-error'>Sync failed — saved locally</span>"; setTimeout(function(){ if(msgEl) msgEl.innerHTML=""; }, 4000); }
+    setTimeout(updateSyncStatus, 4000);
   }
 }
-
-// Setup modal
-function openSetup() {
-  document.getElementById("setupModal").style.display = "flex";
-  if (sheetsUrl) document.getElementById("sheetsUrlInput").value = sheetsUrl;
-}
-
-function closeSetupModal(e) {
-  if (e.target === document.getElementById("setupModal")) closeSetup();
-}
-
-function closeSetup() {
-  document.getElementById("setupModal").style.display = "none";
-}
-
+function openSetup() { document.getElementById("setupModal").style.display = "flex"; if (sheetsUrl) document.getElementById("sheetsUrlInput").value = sheetsUrl; }
+function closeSetupModal(e) { if (e.target === document.getElementById("setupModal")) closeSetup(); }
+function closeSetup() { document.getElementById("setupModal").style.display = "none"; }
 function saveSheetUrl() {
-  const url = document.getElementById("sheetsUrlInput").value.trim();
-  if (!url || !url.startsWith("https://script.google.com")) {
-    alert("Please paste a valid Google Apps Script URL.");
-    return;
-  }
-  sheetsUrl = url;
-  localStorage.setItem("sheets-url", url);
-  updateSyncStatus();
-  closeSetup();
+  var url = document.getElementById("sheetsUrlInput").value.trim();
+  if (!url || url.indexOf("https://script.google.com") !== 0) { alert("Please paste a valid Google Apps Script URL."); return; }
+  sheetsUrl = url; localStorage.setItem("sheets-url", url); updateSyncStatus(); closeSetup();
 }
-
 function copyScript() {
-  const code = document.getElementById("scriptCode").textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    const btn = event.target;
-    btn.textContent = "✓ Copied!";
-    setTimeout(() => btn.textContent = "📋 Copy code", 2000);
-  }).catch(() => {
-    // fallback
-    const ta = document.createElement("textarea");
-    ta.value = code;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
-    event.target.textContent = "✓ Copied!";
-    setTimeout(() => event.target.textContent = "📋 Copy code", 2000);
+  var code = document.getElementById("scriptCode").textContent;
+  var btn = event.target;
+  navigator.clipboard.writeText(code).then(function(){ btn.textContent = "Copied!"; setTimeout(function(){ btn.textContent = "Copy code"; }, 2000); })
+  .catch(function(){
+    var ta = document.createElement("textarea"); ta.value = code; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    btn.textContent = "Copied!"; setTimeout(function(){ btn.textContent = "Copy code"; }, 2000);
   });
 }
-
-// Init
 loadData();
 renderCalendar();
 </script>
