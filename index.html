@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Gains" />
+<title>Gains Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    background: #0a0a0f;
+    color: #fff;
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    padding-bottom: 40px;
+  }
+  .glow {
+    position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .header {
+    padding: 56px 20px 0;
+    position: relative; z-index: 1;
+  }
+  .header-row {
+    display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;
+  }
+  .header-label {
+    font-size: 13px; color: #6b7280; letter-spacing: 1px;
+    text-transform: uppercase; font-weight: 600; margin-bottom: 4px;
+  }
+  .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .month-total-box {
+    text-align: right; border-radius: 16px; padding: 10px 16px;
+    transition: all 0.3s;
+  }
+  .month-total-box.gain {
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .month-total-box.loss {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .month-total-box.neutral {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .month-total-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+  .month-total-value { font-size: 20px; font-weight: 700; }
+  .gain-color { color: #10b981; }
+  .loss-color { color: #ef4444; }
+  .neutral-color { color: #6b7280; }
+
+/* Sync status bar */
+.sync-bar {
+display: flex; align-items: center; justify-content: space-between;
+margin: 12px 20px 0; padding: 8px 14px;
+background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+border-radius: 12px; font-size: 12px; color: #6b7280;
+}
+.sync-dot {
+width: 7px; height: 7px; border-radius: 50%; margin-right: 6px;
+display: inline-block;
+}
+.sync-dot.connected { background: #10b981; box-shadow: 0 0 6px #10b981; }
+.sync-dot.disconnected { background: #6b7280; }
+.sync-dot.syncing { background: #f59e0b; animation: pulse 1s infinite; }
+.sync-dot.error { background: #ef4444; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.sync-setup-btn {
+background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+color: #10b981; border-radius: 8px; padding: 4px 10px;
+font-size: 11px; font-weight: 600; cursor: pointer;
+}
+
+.nav {
+display: flex; align-items: center; justify-content: space-between;
+padding: 20px 20px 12px; position: relative; z-index: 1;
+}
+.nav-btn {
+background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+color: #fff; width: 38px; height: 38px; border-radius: 12px;
+font-size: 20px; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+}
+.nav-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+.day-labels {
+display: grid; grid-template-columns: repeat(7, 1fr);
+padding: 0 12px; margin-bottom: 4px;
+}
+.day-label {
+text-align: center; font-size: 11px; color: #4b5563;
+font-weight: 600; padding: 4px 0; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.grid {
+display: grid; grid-template-columns: repeat(7, 1fr);
+gap: 3px; padding: 0 12px 24px;
+}
+.day-cell {
+background: rgba(255,255,255,0.03);
+border: 1px solid rgba(255,255,255,0.06);
+border-radius: 12px; cursor: pointer;
+padding: 8px 2px 6px; min-height: 62px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: space-between;
+transition: all 0.15s ease; position: relative;
+}
+.day-cell.has-gain {
+background: rgba(16,185,129,0.13);
+border-color: rgba(16,185,129,0.35);
+}
+.day-cell.has-loss {
+background: rgba(239,68,68,0.13);
+border-color: rgba(239,68,68,0.35);
+}
+.day-cell.is-today {
+border: 1.5px solid rgba(255,255,255,0.5) !important;
+}
+.day-num {
+font-size: 14px; font-weight: 500; color: #9ca3af; line-height: 1;
+}
+.day-num.today { font-weight: 700; color: #fff; }
+.day-amount {
+font-size: 9px; font-weight: 700; line-height: 1; margin-top: 4px; letter-spacing: -0.2px;
+}
+.legend {
+display: flex; justify-content: center; gap: 20px; padding-bottom: 32px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; opacity: 0.8; }
+.legend-label { font-size: 12px; color: #6b7280; }
+
+/* Modal */
+.overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+backdrop-filter: blur(8px); z-index: 50;
+display: flex; align-items: flex-end; justify-content: center;
+}
+.sheet {
+background: #13131a; border: 1px solid rgba(255,255,255,0.1);
+border-radius: 28px 28px 0 0; width: 100%; max-width: 430px;
+padding: 20px 20px 48px; max-height: 80vh; overflow-y: auto;
+}
+.handle {
+width: 40px; height: 4px; border-radius: 2px;
+background: rgba(255,255,255,0.15); margin: 0 auto 20px;
+}
+.sheet-header {
+display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;
+}
+.sheet-date { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
+.sheet-total { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+.add-btn {
+background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3);
+color: #10b981; border-radius: 12px; padding: 8px 14px;
+font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.stock-row {
+display: flex; align-items: center; justify-content: space-between;
+background: rgba(255,255,255,0.04); border-radius: 14px;
+padding: 14px 16px; margin-bottom: 8px;
+border: 1px solid rgba(255,255,255,0.07);
+}
+.stock-ticker { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+.stock-sub { font-size: 11px; color: #6b7280; margin-top: 1px; }
+.stock-amount { font-size: 17px; font-weight: 700; }
+.remove-btn {
+background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+color: #ef4444; border-radius: 8px; width: 28px; height: 28px;
+font-size: 16px; cursor: pointer;
+display: flex; align-items: center; justify-content: center; margin-left: 10px;
+}
+.empty-state { text-align: center; color: #4b5563; font-size: 14px; padding: 24px 0; }
+.entry-form {
+background: rgba(255,255,255,0.04); border: 1px solid rgba(16,185,129,0.25);
+border-radius: 16px; padding: 16px; margin-top: 4px;
+}
+.entry-form-title {
+font-size: 13px; color: #6b7280; margin-bottom: 12px;
+font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+}
+.entry-inputs { display: flex; gap: 8px; margin-bottom: 8px; }
+.entry-input {
+flex: 1; background: rgba(255,255,255,0.07);
+border: 1px solid rgba(255,255,255,0.12);
+color: #fff; border-radius: 10px; padding: 10px 12px;
+font-size: 14px; outline: none;
+-webkit-appearance: none;
+}
+.entry-input::placeholder { color: #4b5563; }
+.entry-hint { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
+.entry-btns { display: flex; gap: 8px; }
+.cancel-btn {
+flex: 1; background: rgba(255,255,255,0.05);
+border: 1px solid rgba(255,255,255,0.1);
+color: #9ca3af; border-radius: 10px; padding: 10px 0;
+font-size: 14px; cursor: pointer; font-weight: 600;
+}
+.save-btn {
+flex: 1; background: linear-gradient(135deg, #10b981, #059669);
+border: none; color: #fff; border-radius: 10px; padding: 10px 0;
+font-size: 14px; cursor: pointer; font-weight: 700;
+}
+
+/* Setup Modal */
+.setup-sheet {
+background: #13131a; border: 1px solid rgba(255,255,255,0.1);
+border-radius: 28px 28px 0 0; width: 100%; max-width: 430px;
+padding: 20px 20px 48px; max-height: 90vh; overflow-y: auto;
+}
+.setup-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.setup-sub { font-size: 14px; color: #6b7280; margin-bottom: 24px; line-height: 1.5; }
+.step {
+display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start;
+}
+.step-num {
+width: 28px; height: 28px; border-radius: 50%;
+background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4);
+color: #10b981; font-size: 13px; font-weight: 700;
+display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+margin-top: 2px;
+}
+.step-content { flex: 1; }
+.step-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: #9ca3af; line-height: 1.5; }
+.code-block {
+background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+border-radius: 10px; padding: 12px; margin-top: 8px;
+font-family: ‘Courier New’, monospace; font-size: 11px;
+color: #10b981; white-space: pre-wrap; word-break: break-all;
+line-height: 1.6;
+}
+.copy-btn {
+background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+color: #9ca3af; border-radius: 8px; padding: 4px 10px;
+font-size: 11px; cursor: pointer; margin-top: 6px; display: inline-block;
+}
+.url-input {
+width: 100%; background: rgba(255,255,255,0.07);
+border: 1px solid rgba(16,185,129,0.3);
+color: #fff; border-radius: 10px; padding: 12px;
+font-size: 13px; outline: none; margin-top: 8px;
+-webkit-appearance: none;
+}
+.url-input::placeholder { color: #4b5563; }
+.save-url-btn {
+width: 100%; background: linear-gradient(135deg, #10b981, #059669);
+border: none; color: #fff; border-radius: 12px; padding: 14px;
+font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px;
+}
+.divider {
+height: 1px; background: rgba(255,255,255,0.07); margin: 20px 0;
+}
+
+.syncing-indicator {
+font-size: 11px; color: #f59e0b; display: flex; align-items: center; gap: 4px;
+}
+.sync-success { font-size: 11px; color: #10b981; }
+.sync-error { font-size: 11px; color: #ef4444; }
+</style>
+
+</head>
+<body>
+<div class="glow"></div>
+
+<!-- Header -->
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <div class="header-label">Portfolio</div>
+      <div class="header-title">Gains Tracker</div>
+    </div>
+    <div class="month-total-box neutral" id="monthTotalBox">
+      <div class="month-total-label">Month</div>
+      <div class="month-total-value neutral-color" id="monthTotal">$0.00</div>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Status Bar -->
+
+<div class="sync-bar">
+  <div style="display:flex;align-items:center;">
+    <span class="sync-dot disconnected" id="syncDot"></span>
+    <span id="syncStatus">Not connected to Google Sheets</span>
+  </div>
+  <button class="sync-setup-btn" onclick="openSetup()">Setup</button>
+</div>
+
+<!-- Month Nav -->
+
+<div class="nav">
+  <button class="nav-btn" onclick="prevMonth()">‹</button>
+  <div class="nav-title" id="navTitle"></div>
+  <button class="nav-btn" onclick="nextMonth()">›</button>
+</div>
+
+<!-- Day Labels -->
+
+<div class="day-labels">
+  <div class="day-label">Sun</div><div class="day-label">Mon</div>
+  <div class="day-label">Tue</div><div class="day-label">Wed</div>
+  <div class="day-label">Thu</div><div class="day-label">Fri</div>
+  <div class="day-label">Sat</div>
+</div>
+
+<!-- Calendar Grid -->
+
+<div class="grid" id="calGrid"></div>
+
+<!-- Legend -->
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span class="legend-label">Gain</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-label">Loss</span></div>
+</div>
+
+<!-- Day Detail Modal -->
+
+<div class="overlay" id="dayModal" style="display:none;" onclick="closeDayModal(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-date" id="modalDate"></div>
+        <div class="sheet-total" id="modalTotal"></div>
+        <div id="modalSyncMsg" style="margin-top:4px;min-height:16px;"></div>
+      </div>
+      <button class="add-btn" onclick="showEntryForm()">+ Add</button>
+    </div>
+    <div id="stockList"></div>
+    <div id="entryForm" style="display:none;">
+      <div class="entry-form">
+        <div class="entry-form-title">New Entry</div>
+        <div class="entry-inputs">
+          <input class="entry-input" id="tickerInput" placeholder="Ticker (e.g. AAPL)" style="text-transform:uppercase;" />
+          <input class="entry-input" id="gainInput" placeholder="$ Amount" type="number" />
+        </div>
+        <div class="entry-hint">Use negative values for losses (e.g. -250)</div>
+        <div class="entry-btns">
+          <button class="cancel-btn" onclick="hideEntryForm()">Cancel</button>
+          <button class="save-btn" onclick="addStock()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Setup Modal -->
+
+<div class="overlay" id="setupModal" style="display:none;" onclick="closeSetupModal(event)">
+  <div class="setup-sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div class="setup-title">Connect Google Sheets</div>
+    <div class="setup-sub">Follow these steps once. Your entries will sync to your Google Drive permanently.</div>
+
+```
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-content">
+    <div class="step-title">Create a Google Sheet</div>
+    <div class="step-desc">Go to <strong style="color:#fff">sheets.google.com</strong>, create a new spreadsheet. Name it anything — e.g. "Investment Gains".</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-content">
+    <div class="step-title">Open Apps Script</div>
+    <div class="step-desc">In your sheet, click <strong style="color:#fff">Extensions → Apps Script</strong>. Delete any existing code and paste this:</div>
+    <div class="code-block" id="scriptCode">function doPost(e) {
+```
+
+try {
+var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+var data = JSON.parse(e.postData.contents);
+if (data.action === “add”) {
+sheet.appendRow([data.date, data.ticker, data.gain, new Date().toLocaleString()]);
+} else if (data.action === “delete”) {
+var rows = sheet.getDataRange().getValues();
+for (var i = rows.length - 1; i >= 0; i–) {
+if (rows[i][0] === data.date && rows[i][1] === data.ticker && Number(rows[i][2]) === Number(data.gain)) {
+sheet.deleteRow(i + 1); break;
+}
+}
+}
+return ContentService.createTextOutput(JSON.stringify({status:“ok”})).setMimeType(ContentService.MimeType.JSON);
+} catch(err) {
+return ContentService.createTextOutput(JSON.stringify({status:“error”,message:err.toString()})).setMimeType(ContentService.MimeType.JSON);
+}
+}</div>
+<button class="copy-btn" onclick="copyScript()">📋 Copy code</button>
+</div>
+</div>
+
+```
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-content">
+    <div class="step-title">Deploy as Web App</div>
+    <div class="step-desc">Click <strong style="color:#fff">Deploy → New deployment</strong>. Set type to <strong style="color:#fff">Web app</strong>. Set <strong style="color:#fff">"Who has access"</strong> to <strong style="color:#fff">Anyone</strong>. Click Deploy and copy the URL.</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-content">
+    <div class="step-title">Paste your Web App URL below</div>
+    <div class="step-desc">It looks like: <span style="color:#10b981">https://script.google.com/macros/s/...</span></div>
+    <input class="url-input" id="sheetsUrlInput" placeholder="Paste your Apps Script URL here..." />
+  </div>
+</div>
+
+<button class="save-url-btn" onclick="saveSheetUrl()">✓ Connect & Save</button>
+
+<div class="divider"></div>
+<div style="text-align:center;">
+  <button onclick="closeSetup()" style="background:none;border:none;color:#6b7280;font-size:14px;cursor:pointer;">Cancel</button>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+let today = new Date();
+let currentYear = today.getFullYear();
+let currentMonth = today.getMonth();
+let selectedDay = null;
+let data = {};
+let sheetsUrl = "";
+
+// Load from localStorage
+function loadData() {
+  try {
+    const raw = localStorage.getItem("investment-gains");
+    data = raw ? JSON.parse(raw) : {};
+  } catch { data = {}; }
+  try {
+    sheetsUrl = localStorage.getItem("sheets-url") || "";
+  } catch { sheetsUrl = ""; }
+  updateSyncStatus();
+}
+
+function saveData() {
+  try { localStorage.setItem("investment-gains", JSON.stringify(data)); } catch {}
+}
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+
+function getDayStocks(day) {
+  return (data[dateKey(currentYear, currentMonth, day)] || { stocks: [] }).stocks;
+}
+
+function getDayTotal(day) {
+  return getDayStocks(day).reduce((s, x) => s + (parseFloat(x.gain) || 0), 0);
+}
+
+function fmtCurrency(val) {
+  if (val === 0) return "$0.00";
+  const abs = Math.abs(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${val >= 0 ? "+" : "-"}$${abs}`;
+}
+
+function fmtShort(val) {
+  const abs = Math.abs(val);
+  const str = abs >= 1000 ? `$${(abs/1000).toFixed(1)}k` : `$${abs.toFixed(0)}`;
+  return (val >= 0 ? "+" : "-") + str;
+}
+
+function updateSyncStatus() {
+  const dot = document.getElementById("syncDot");
+  const status = document.getElementById("syncStatus");
+  if (sheetsUrl) {
+    dot.className = "sync-dot connected";
+    status.textContent = "Connected to Google Sheets";
+  } else {
+    dot.className = "sync-dot disconnected";
+    status.textContent = "Not connected to Google Sheets";
+  }
+}
+
+function renderCalendar() {
+  document.getElementById("navTitle").textContent = `${MONTHS[currentMonth]} ${currentYear}`;
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const grid = document.getElementById("calGrid");
+  grid.innerHTML = "";
+
+  // Blanks
+  for (let i = 0; i < firstDay; i++) {
+    grid.appendChild(document.createElement("div"));
+  }
+
+  let monthTotal = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const total = getDayTotal(day);
+    monthTotal += total;
+    const isT = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+    const cell = document.createElement("button");
+    cell.className = "day-cell" + (total > 0 ? " has-gain" : total < 0 ? " has-loss" : "") + (isT ? " is-today" : "");
+    cell.innerHTML = `
+      <span class="day-num${isT ? " today" : ""}">${day}</span>
+      ${total !== 0 ? `<span class="day-amount ${total > 0 ? "gain-color" : "loss-color"}">${fmtShort(total)}</span>` : "<span style='height:10px'></span>"}
+    `;
+    cell.onclick = () => openDay(day);
+    grid.appendChild(cell);
+  }
+
+  // Month total
+  const box = document.getElementById("monthTotalBox");
+  const val = document.getElementById("monthTotal");
+  box.className = "month-total-box " + (monthTotal > 0 ? "gain" : monthTotal < 0 ? "loss" : "neutral");
+  val.className = "month-total-value " + (monthTotal > 0 ? "gain-color" : monthTotal < 0 ? "loss-color" : "neutral-color");
+  val.textContent = fmtCurrency(monthTotal);
+}
+
+function prevMonth() {
+  if (currentMonth === 0) { currentYear--; currentMonth = 11; }
+  else currentMonth--;
+  renderCalendar();
+}
+
+function nextMonth() {
+  if (currentMonth === 11) { currentYear++; currentMonth = 0; }
+  else currentMonth++;
+  renderCalendar();
+}
+
+// Day modal
+function openDay(day) {
+  selectedDay = day;
+  document.getElementById("dayModal").style.display = "flex";
+  document.getElementById("entryForm").style.display = "none";
+  document.getElementById("tickerInput").value = "";
+  document.getElementById("gainInput").value = "";
+  renderDayModal();
+}
+
+function closeDayModal(e) {
+  if (e.target === document.getElementById("dayModal")) {
+    document.getElementById("dayModal").style.display = "none";
+    selectedDay = null;
+  }
+}
+
+function renderDayModal() {
+  if (!selectedDay) return;
+  const key = dateKey(currentYear, currentMonth, selectedDay);
+  const stocks = (data[key] || { stocks: [] }).stocks;
+  const total = stocks.reduce((s, x) => s + (parseFloat(x.gain) || 0), 0);
+
+  document.getElementById("modalDate").textContent = `${MONTHS[currentMonth]} ${selectedDay}, ${currentYear}`;
+  const totalEl = document.getElementById("modalTotal");
+  totalEl.textContent = fmtCurrency(total);
+  totalEl.className = "sheet-total " + (total > 0 ? "gain-color" : total < 0 ? "loss-color" : "neutral-color");
+
+  const list = document.getElementById("stockList");
+  if (stocks.length === 0) {
+    list.innerHTML = `<div class="empty-state">No entries yet. Tap + Add to log a gain or loss.</div>`;
+    return;
+  }
+  list.innerHTML = stocks.map((s, i) => `
+    <div class="stock-row">
+      <div>
+        <div class="stock-ticker">${s.ticker}</div>
+        <div class="stock-sub">Stock</div>
+      </div>
+      <div style="display:flex;align-items:center;">
+        <span class="stock-amount ${s.gain >= 0 ? "gain-color" : "loss-color"}">${fmtCurrency(parseFloat(s.gain))}</span>
+        <button class="remove-btn" onclick="removeStock(${i})">×</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function showEntryForm() {
+  document.getElementById("entryForm").style.display = "block";
+  setTimeout(() => document.getElementById("tickerInput").focus(), 100);
+}
+
+function hideEntryForm() {
+  document.getElementById("entryForm").style.display = "none";
+}
+
+async function addStock() {
+  const ticker = document.getElementById("tickerInput").value.trim().toUpperCase();
+  const gainRaw = document.getElementById("gainInput").value;
+  if (!ticker || gainRaw === "") return;
+  const gain = parseFloat(gainRaw);
+  const key = dateKey(currentYear, currentMonth, selectedDay);
+  if (!data[key]) data[key] = { stocks: [] };
+  data[key].stocks.push({ ticker, gain });
+  saveData();
+  hideEntryForm();
+  document.getElementById("tickerInput").value = "";
+  document.getElementById("gainInput").value = "";
+  renderDayModal();
+  renderCalendar();
+
+  // Sync to Google Sheets
+  if (sheetsUrl) {
+    await syncToSheets("add", {
+      date: dateKey(currentYear, currentMonth, selectedDay),
+      ticker, gain
+    });
+  }
+}
+
+async function removeStock(idx) {
+  const key = dateKey(currentYear, currentMonth, selectedDay);
+  if (!data[key]) return;
+  const removed = data[key].stocks[idx];
+  data[key].stocks.splice(idx, 1);
+  saveData();
+  renderDayModal();
+  renderCalendar();
+
+  // Sync delete to Google Sheets
+  if (sheetsUrl && removed) {
+    await syncToSheets("delete", {
+      date: key,
+      ticker: removed.ticker,
+      gain: removed.gain
+    });
+  }
+}
+
+async function syncToSheets(action, payload) {
+  const dot = document.getElementById("syncDot");
+  const msgEl = document.getElementById("modalSyncMsg");
+  dot.className = "sync-dot syncing";
+  if (msgEl) msgEl.innerHTML = `<span class="syncing-indicator">⏳ Syncing...</span>`;
+
+  try {
+    const res = await fetch(sheetsUrl, {
+      method: "POST",
+      body: JSON.stringify({ action, ...payload }),
+      headers: { "Content-Type": "text/plain" } // Apps Script needs text/plain for no-cors
+    });
+    dot.className = "sync-dot connected";
+    if (msgEl) {
+      msgEl.innerHTML = `<span class="sync-success">✓ Saved to Google Sheets</span>`;
+      setTimeout(() => { if (msgEl) msgEl.innerHTML = ""; }, 3000);
+    }
+  } catch (err) {
+    dot.className = "sync-dot error";
+    if (msgEl) {
+      msgEl.innerHTML = `<span class="sync-error">⚠ Sync failed — saved locally</span>`;
+      setTimeout(() => { if (msgEl) msgEl.innerHTML = ""; }, 4000);
+    }
+    setTimeout(() => updateSyncStatus(), 4000);
+  }
+}
+
+// Setup modal
+function openSetup() {
+  document.getElementById("setupModal").style.display = "flex";
+  if (sheetsUrl) document.getElementById("sheetsUrlInput").value = sheetsUrl;
+}
+
+function closeSetupModal(e) {
+  if (e.target === document.getElementById("setupModal")) closeSetup();
+}
+
+function closeSetup() {
+  document.getElementById("setupModal").style.display = "none";
+}
+
+function saveSheetUrl() {
+  const url = document.getElementById("sheetsUrlInput").value.trim();
+  if (!url || !url.startsWith("https://script.google.com")) {
+    alert("Please paste a valid Google Apps Script URL.");
+    return;
+  }
+  sheetsUrl = url;
+  localStorage.setItem("sheets-url", url);
+  updateSyncStatus();
+  closeSetup();
+}
+
+function copyScript() {
+  const code = document.getElementById("scriptCode").textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = event.target;
+    btn.textContent = "✓ Copied!";
+    setTimeout(() => btn.textContent = "📋 Copy code", 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement("textarea");
+    ta.value = code;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    event.target.textContent = "✓ Copied!";
+    setTimeout(() => event.target.textContent = "📋 Copy code", 2000);
+  });
+}
+
+// Init
+loadData();
+renderCalendar();
+</script>
+
+</body>
+</html>
